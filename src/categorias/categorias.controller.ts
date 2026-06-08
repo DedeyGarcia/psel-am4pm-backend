@@ -1,9 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
 import { CategoriasService } from './categorias.service';
-import { ApiBearerAuth } from '@nestjs/swagger';
 import { Categoria } from './entities/categoria.entity';
+import { ApiAuth } from '../auth/api-auth.decorator';
 
-@ApiBearerAuth()
+@ApiAuth()
 @Controller('categorias')
 export class CategoriasController {
   constructor(private readonly categoriasService: CategoriasService) {}

@@ -12,8 +12,8 @@ import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { Usuario } from './entities/usuario.entity';
-import { ApiBearerAuth } from '@nestjs/swagger';
 import { Public } from '../auth/public.decorator';
+import { ApiAuth } from '../auth/api-auth.decorator';
 
 @Controller('usuarios')
 export class UsuariosController {
@@ -26,21 +26,21 @@ export class UsuariosController {
     return user;
   }
 
-  @ApiBearerAuth()
+  @ApiAuth()
   @Get()
   async findAll(): Promise<Usuario[]> {
     const users = await this.usuariosService.findAll();
     return users;
   }
 
-  @ApiBearerAuth()
+  @ApiAuth()
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<Usuario> {
     const user = await this.usuariosService.findOne(id);
     return user;
   }
 
-  @ApiBearerAuth()
+  @ApiAuth()
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -50,7 +50,7 @@ export class UsuariosController {
     return user;
   }
 
-  @ApiBearerAuth()
+  @ApiAuth()
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number): Promise<Usuario> {
     const user = await this.usuariosService.remove(id);

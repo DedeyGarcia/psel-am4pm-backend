@@ -25,7 +25,6 @@ async function createApp() {
     .addApiKey({ type: 'apiKey', name: 'x-api-key', in: 'header' }, 'api_key')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  document.security = [{ api_key: [] }];
   SwaggerModule.setup('docs', app, document, {
     customCssUrl:
       'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css',

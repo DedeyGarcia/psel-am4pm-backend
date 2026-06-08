@@ -13,10 +13,10 @@ import { ReceitasService } from './receitas.service';
 import { CreateReceitaDto } from './dto/create-receita.dto';
 import { UpdateReceitaDto } from './dto/update-receita.dto';
 import { type AuthUser, CurrentUser } from '../auth/current-user.decorator';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiAuth } from '../auth/api-auth.decorator';
 import { Receita } from './entities/receita.entity';
 
-@ApiBearerAuth()
+@ApiAuth()
 @Controller('receitas')
 export class ReceitasController {
   constructor(private readonly receitasService: ReceitasService) {}
