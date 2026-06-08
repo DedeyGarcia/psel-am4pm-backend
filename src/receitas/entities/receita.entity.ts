@@ -1,6 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class Receita {
+  @ApiProperty({ example: 1 })
+  id: number;
+
   @ApiProperty({ example: 1, nullable: true })
   id_categorias: number | null;
 
