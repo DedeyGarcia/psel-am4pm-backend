@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   NotFoundException,
 } from '@nestjs/common';
+import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { ReceitasService } from './receitas.service';
 import { CreateReceitaDto } from './dto/create-receita.dto';
 import { UpdateReceitaDto } from './dto/update-receita.dto';
@@ -22,6 +23,7 @@ export class ReceitasController {
   constructor(private readonly receitasService: ReceitasService) {}
 
   @Post()
+  @ApiCreatedResponse({ type: Receita })
   async create(
     @CurrentUser() user: AuthUser,
     @Body() createReceitaDto: CreateReceitaDto,
@@ -30,11 +32,13 @@ export class ReceitasController {
   }
 
   @Get()
+  @ApiOkResponse({ type: Receita, isArray: true })
   findAll(@CurrentUser() user: AuthUser): Promise<Receita[]> {
     return this.receitasService.findAllUserRecipes(user.userId);
   }
 
   @Get(':id')
+  @ApiOkResponse({ type: Receita })
   async findOne(
     @CurrentUser() user: AuthUser,
     @Param('id', ParseIntPipe) id: number,
@@ -50,6 +54,7 @@ export class ReceitasController {
   }
 
   @Patch(':id')
+  @ApiOkResponse({ type: Receita })
   update(
     @CurrentUser() user: AuthUser,
     @Param('id', ParseIntPipe) id: number,
@@ -59,6 +64,7 @@ export class ReceitasController {
   }
 
   @Delete(':id')
+  @ApiOkResponse({ type: Receita })
   remove(
     @CurrentUser() user: AuthUser,
     @Param('id', ParseIntPipe) id: number,

@@ -8,6 +8,7 @@ import {
   Delete,
   ParseIntPipe,
 } from '@nestjs/common';
+import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
@@ -21,6 +22,7 @@ export class UsuariosController {
 
   @Public()
   @Post()
+  @ApiCreatedResponse({ type: Usuario })
   async create(@Body() createUsuarioDto: CreateUsuarioDto): Promise<Usuario> {
     const user = await this.usuariosService.create(createUsuarioDto);
     return user;
@@ -28,6 +30,7 @@ export class UsuariosController {
 
   @ApiAuth()
   @Get()
+  @ApiOkResponse({ type: Usuario, isArray: true })
   async findAll(): Promise<Usuario[]> {
     const users = await this.usuariosService.findAll();
     return users;
@@ -35,6 +38,7 @@ export class UsuariosController {
 
   @ApiAuth()
   @Get(':id')
+  @ApiOkResponse({ type: Usuario })
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<Usuario> {
     const user = await this.usuariosService.findOne(id);
     return user;
@@ -42,6 +46,7 @@ export class UsuariosController {
 
   @ApiAuth()
   @Patch(':id')
+  @ApiOkResponse({ type: Usuario })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUsuarioDto: UpdateUsuarioDto,
@@ -52,6 +57,7 @@ export class UsuariosController {
 
   @ApiAuth()
   @Delete(':id')
+  @ApiOkResponse({ type: Usuario })
   async remove(@Param('id', ParseIntPipe) id: number): Promise<Usuario> {
     const user = await this.usuariosService.remove(id);
     return user;
