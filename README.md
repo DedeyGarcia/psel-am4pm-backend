@@ -13,7 +13,7 @@ A ideia foi manter tudo rodando em infraestrutura **serverless e gratuita**, sem
 - **API - [Vercel](https://vercel.com/)**, no plano **Hobby (gratuito)**. Em vez de um processo Node escutando uma porta o tempo todo, a aplicação Nest é publicada como uma _serverless function_: a Vercel acorda a função quando chega uma requisição e a coloca para dormir quando não há tráfego, ela pode ser acessada pelo link: [https://psel-am4pm-backend.vercel.app/](https://psel-am4pm-backend.vercel.app/).
 - **Banco - [TiDB Cloud](https://www.pingcap.com/tidb-cloud-serverless/)**, no **TiDB Serverless (free tier)**. O TiDB fala o protocolo do MySQL, então deu para manter o Prisma com `provider = "mysql"` sem adaptações no schema. A conexão é feita pelo **adapter MariaDB** ([`@prisma/adapter-mariadb`](https://www.prisma.io/docs/orm/overview/databases/mysql)), configurado em [`src/prisma/prisma.service.ts`](src/prisma/prisma.service.ts).
 
-O TiDB Serverless exige conexão **TLS/SSL**, então a `DATABASE_URL` de produção precisa apontar para o host do TiDB com os parâmetros de SSL que o provedor pede.
+> ⚠️ O TiDB Serverless exige conexão **TLS/SSL**, então a `DATABASE_URL` de produção precisa apontar para o host do TiDB com os parâmetros de SSL que o provedor pede.
 
 ### Sobre o entrypoint na Vercel
 
