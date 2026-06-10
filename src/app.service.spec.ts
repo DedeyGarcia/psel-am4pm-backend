@@ -1,22 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-describe('AppController', () => {
-  let appController: AppController;
+describe('AppService', () => {
+  let service: AppService;
 
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
-      controllers: [AppController],
+    const module: TestingModule = await Test.createTestingModule({
       providers: [AppService],
     }).compile();
 
-    appController = app.get<AppController>(AppController);
+    service = module.get<AppService>(AppService);
   });
 
   describe('getHello', () => {
     it('should return the welcome message', () => {
-      expect(appController.getHello()).toBe(
+      expect(service.getHello()).toBe(
         'Acesse /docs para ver a documentação da API.',
       );
     });
