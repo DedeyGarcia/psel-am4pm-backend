@@ -29,4 +29,8 @@ export class UsuariosService {
       select: this.publicSelect,
     });
   }
+
+  findByLogin(login: string) {
+    return this.prisma.usuarios.findUnique({ where: { login } });
+  }
 }
