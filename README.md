@@ -2,7 +2,7 @@
 
 API REST do aplicativo **Seu Livro de Receitas**, desenvolvida para o processo seletivo da empresa A4PM. Mais informações podem ser encontradas em: [Especificação do Processo Seletivo A4PM](https://gitlab.devrgesus.com.br/codelabs/desafio_rg_receitas_culinarias).
 
-É um backend em NestJS (TypeScript) usando Prisma sobre um banco MySQL-compatível, com a documentação dos endpoints exposta via Swagger/OpenAPI.
+É um backend em NestJS (TypeScript) usando Prisma sobre um banco MySQL, com a documentação dos endpoints exposta via Swagger/OpenAPI.
 
 ---
 
@@ -11,9 +11,9 @@ API REST do aplicativo **Seu Livro de Receitas**, desenvolvida para o processo s
 A ideia foi manter tudo rodando em infraestrutura **serverless e gratuita**, sem nenhum servidor sempre ligado para manter:
 
 - **API - [Vercel](https://vercel.com/)**, no plano **Hobby (gratuito)**. Em vez de um processo Node escutando uma porta o tempo todo, a aplicação Nest é publicada como uma _serverless function_: a Vercel acorda a função quando chega uma requisição e a coloca para dormir quando não há tráfego, ela pode ser acessada pelo link: [https://psel-am4pm-backend.vercel.app/](https://psel-am4pm-backend.vercel.app/).
-- **Banco - [TiDB Cloud](https://www.pingcap.com/tidb-cloud-serverless/)**, no **TiDB Serverless (free tier)**. O TiDB fala o protocolo do MySQL, então deu para manter o Prisma com `provider = "mysql"` sem adaptações no schema. A conexão é feita pelo **adapter MariaDB** ([`@prisma/adapter-mariadb`](https://www.prisma.io/docs/orm/overview/databases/mysql)), configurado em [`src/prisma/prisma.service.ts`](src/prisma/prisma.service.ts).
+- **Banco - [Aiven for MySQL](https://aiven.io/mysql)**, no **plano Free**. Inicialmente o deploy foi feito no [TiDB Cloud](https://www.pingcap.com/tidb-cloud-serverless/) (free tier), mas o TiDB **não é MySQL puro** - é um banco distribuído que apenas fala o protocolo do MySQL, e essas diferenças de comportamento geravam atrito. Como a especificação pede **MySQL**, migrei para o Aiven, que entrega MySQL de verdade.
 
-> ⚠️ O TiDB Serverless exige conexão **TLS/SSL**, então a `DATABASE_URL` de produção precisa apontar para o host do TiDB com os parâmetros de SSL que o provedor pede.
+> ⚠️ O Aiven exige conexão **TLS/SSL**. Em produção, o CA certificate é passado via env var `DB_CA_CERT`, lido pelo `PrismaService`.
 
 ### Sobre o entrypoint na Vercel
 
@@ -31,7 +31,7 @@ Ou seja: o mesmo código serve para desenvolvimento local e para o deploy server
 ## Pré-requisitos
 
 - **Node.js** `>= 22`
-- **Docker** + **Docker Compose** (para subir o MySQL local) - ou um banco MySQL/TiDB já disponível.
+- **Docker** + **Docker Compose** (para subir o MySQL local) - ou um banco MySQL já disponível.
 
 ---
 
@@ -53,7 +53,8 @@ cp .env.example .env
 
 As variáveis usadas pela aplicação são:
 
-- **`DATABASE_URL`** (obrigatória) - string de conexão MySQL/TiDB usada pelo Prisma.
+- **`DATABASE_URL`** (obrigatória) - string de conexão MySQL usada pelo Prisma.
+- **`DB_CA_CERT`** (produção) - conteúdo do CA certificate do Aiven, usado para o TLS em produção. Local não precisa.
 - **`JWT_SECRET`** (obrigatória) - segredo usado para assinar e validar os tokens JWT.
 - **`JWT_EXPIRES_IN`** (opcional) - tempo de expiração do token; o padrão é `1d`.
 - **`API_KEY`** (opcional) - se definida, passa a exigir o header `x-api-key` nas rotas protegidas. Se ficar em branco, essa checagem é simplesmente ignorada.
@@ -81,7 +82,7 @@ docker compose up -d
 
 A inicialização usa o script [`docker/mysql/init/script.sql`](docker/mysql/init/script.sql), que cria as tabelas `usuarios`, `categorias` e `receitas` e popula as 13 categorias da especificação.
 
-> O `script.sql` é exatamente o **script fornecido no desafio, seguido à risca**: nenhuma alteração foi feita nele. Em produção, esse mesmo script foi **executado manualmente no TiDB**, sem migrations do Prisma - o Prisma é usado apenas em modo "introspect"/client, refletindo a estrutura que o script já criou.
+> O `script.sql` é exatamente o **script fornecido no desafio, seguido à risca**: nenhuma alteração foi feita nele. Em produção, esse mesmo script foi **executado manualmente no Aiven**, sem migrations do Prisma - o Prisma é usado apenas em modo "introspect"/client, refletindo a estrutura que o script já criou.
 
 O script só roda na **primeira** criação do volume. Para reaplicá-lo do zero, remova o volume com `docker compose down -v` e suba de novo.
 
@@ -170,7 +171,7 @@ São três tabelas, espelhadas em [`prisma/schema.prisma`](prisma/schema.prisma)
 ### Principais decisões e bibliotecas
 
 - **[NestJS 11](https://nestjs.com/)** - framework de back-end.
-- **[Prisma 7](https://www.prisma.io/) + [adapter MariaDB](https://www.prisma.io/docs/orm/overview/databases/mysql)** - ORM e acesso ao banco MySQL/TiDB.
+- **[Prisma 7](https://www.prisma.io/) + [adapter MariaDB](https://www.prisma.io/docs/orm/overview/databases/mysql)** - ORM e acesso ao banco MySQL.
 - **[Passport](https://www.passportjs.org/) + JWT** - autenticação via `passport-jwt` (Bearer) e `passport-local` (login), no formato recomendado pelo Nest.
 - **[bcrypt](https://github.com/kelektiv/node.bcrypt.js)** - hash de senhas.
 - **[class-validator](https://github.com/typestack/class-validator) + [class-transformer](https://github.com/typestack/class-transformer)** - validação e transformação dos DTOs.
