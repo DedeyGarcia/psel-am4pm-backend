@@ -12,7 +12,7 @@ describe('ReceitasController', () => {
 
   const service: DeepMockProxy<ReceitasService> = mockDeep<ReceitasService>();
 
-  const user: AuthUser = { userId: 1, login: 'andrey' };
+  const user: AuthUser = { userId: 1, login: 'teste' };
   const recipe = {
     id: 10,
     id_categorias: 1,

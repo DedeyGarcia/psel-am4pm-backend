@@ -60,6 +60,8 @@ As variáveis usadas pela aplicação são:
 
 As variáveis `MYSQL_*` que aparecem no `.env` **não** são lidas pela aplicação: elas existem só para o [`docker-compose.yml`](docker-compose.yml) provisionar o banco local.
 
+> ⚠️ **`MYSQL_DATABASE` precisa ser exatamente `teste_receitas_rg_sistemas`.** O [`script.sql`](docker/mysql/init/script.sql) cria e usa esse schema de forma fixa, e o container MySQL concede privilégios ao `MYSQL_USER` apenas no database nomeado em `MYSQL_DATABASE`. Se o nome divergir, o schema é criado mas o usuário da aplicação não tem acesso a ele — e a `DATABASE_URL` também aponta para esse mesmo nome.
+
 ```env
 DATABASE_URL="mysql://receitas:receitas@localhost:3306/teste_receitas_rg_sistemas"
 JWT_SECRET="troque-por-um-segredo-forte"
@@ -127,6 +129,17 @@ npm run test:watch  # modo watch
 npm run test:cov    # com cobertura
 npm run test:e2e    # testes end-to-end
 ```
+
+### Testes end-to-end
+
+Os testes e2e (em [`test/`](test/)) sobem a aplicação inteira via `Test.createTestingModule` e batem nos endpoints com `supertest`, rodando contra um **MySQL de verdade** num schema isolado (`teste_receitas_rg_sistemas_test`), para não tocar nos dados de desenvolvimento.
+
+Pré-requisitos:
+
+1. **MySQL no ar** (`docker compose up -d`).
+2. **`.env.test`** na raiz (copie de [`.env.test.example`](.env.test.example)) — aponta a `DATABASE_URL` para o schema `_test` usando o usuário `root`, necessário porque o usuário comum não tem privilégio para criar um novo schema.
+
+Ao rodar `npm run test:e2e`, um `globalSetup` do Jest executa `prisma db push` no schema de teste antes da suíte. O Jest roda com `--runInBand` (evita testes competindo pelas tabelas) e `--experimental-vm-modules` (necessário para o `import()` dinâmico do compilador WASM do Prisma 7). Cada arquivo cobre um domínio (`usuarios`, `auth`, `categorias`, `receitas`) e limpa o banco entre os casos.
 
 ---
 
