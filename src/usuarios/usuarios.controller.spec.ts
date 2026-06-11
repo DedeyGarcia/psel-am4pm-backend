@@ -60,7 +60,7 @@ describe('UsuariosController', () => {
       expect(result).toEqual(createdUser);
     });
 
-    it('should throw NotFoundException when the recipe is not found', async () => {
+    it('should throw NotFoundException when the user is not found', async () => {
       service.findOne.mockResolvedValue(null);
 
       await expect(

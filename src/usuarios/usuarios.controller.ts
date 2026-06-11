@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Get, NotFoundException } from '@nestjs/common';
-import { ApiCreatedResponse } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { Usuario } from './entities/usuario.entity';
@@ -19,7 +19,7 @@ export class UsuariosController {
   }
 
   @Get('me')
-  @ApiCreatedResponse({ type: Usuario })
+  @ApiOkResponse({ type: Usuario })
   async findOne(@CurrentUser() currentUser: AuthUser): Promise<Usuario> {
     const user = await this.usuariosService.findOne(currentUser.userId);
 
