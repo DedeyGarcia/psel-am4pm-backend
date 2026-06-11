@@ -12,6 +12,15 @@ describe('UsuariosService', () => {
 
   const prisma: DeepMockProxy<PrismaService> = mockDeep<PrismaService>();
 
+  const createdUser = {
+    id: 1,
+    nome: 'test',
+    login: 'test',
+    senha: 'hash_fake',
+    criado_em: new Date(),
+    alterado_em: new Date(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -28,17 +37,9 @@ describe('UsuariosService', () => {
   describe('create', () => {
     it('should generate password hash and create user', async () => {
       const dto = { nome: 'test', login: 'test', senha: '123456' };
-      const usuarioCriado = {
-        id: 1,
-        nome: 'test',
-        login: 'test',
-        senha: 'hash_fake',
-        criado_em: new Date(),
-        alterado_em: new Date(),
-      };
 
       bcryptMock.hash.mockResolvedValue('hash_fake' as never);
-      prisma.usuarios.create.mockResolvedValue(usuarioCriado);
+      prisma.usuarios.create.mockResolvedValue(createdUser);
 
       const result = await service.create(dto);
 
@@ -61,28 +62,20 @@ describe('UsuariosService', () => {
         }),
       );
 
-      expect(result).toEqual(usuarioCriado);
+      expect(result).toEqual(createdUser);
     });
   });
 
   describe('findByLogin', () => {
     it('should find user by login', async () => {
-      const usuario = {
-        id: 1,
-        nome: 'test',
-        login: 'test',
-        senha: 'hash_fake',
-        criado_em: new Date(),
-        alterado_em: new Date(),
-      };
-      prisma.usuarios.findUnique.mockResolvedValue(usuario);
+      prisma.usuarios.findUnique.mockResolvedValue(createdUser);
 
       const result = await service.findByLogin('test');
 
       expect(prisma.usuarios.findUnique).toHaveBeenCalledWith({
         where: { login: 'test' },
       });
-      expect(result).toBe(usuario);
+      expect(result).toBe(createdUser);
     });
 
     it('should return null when login does not exist', async () => {
@@ -91,6 +84,26 @@ describe('UsuariosService', () => {
       const result = await service.findByLogin('missing');
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return the requested user', async () => {
+      prisma.usuarios.findUnique.mockResolvedValue(createdUser);
+
+      const result = await service.findOne(createdUser.id);
+
+      expect(prisma.usuarios.findUnique).toHaveBeenCalledWith({
+        where: { id: createdUser.id },
+        select: {
+          id: true,
+          nome: true,
+          login: true,
+          criado_em: true,
+          alterado_em: true,
+        },
+      });
+      expect(result).toEqual(createdUser);
     });
   });
 });

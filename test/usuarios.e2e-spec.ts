@@ -5,6 +5,7 @@ import { createTestApp } from './helpers/setup-app';
 import { cleanDatabase } from './helpers/db.helper';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { Usuario } from '../src/usuarios/entities/usuario.entity';
+import { createUserAndLogin } from './helpers/auth.helper';
 
 describe('UsuariosController (e2e)', () => {
   let app: INestApplication;
@@ -68,6 +69,31 @@ describe('UsuariosController (e2e)', () => {
         .post('/usuarios')
         .send({ login: 'joao', senha: 'senha123' })
         .expect(409);
+    });
+  });
+
+  describe('GET /usuarios/me', () => {
+    it('should return the logged in user and not return the password', async () => {
+      const user = await createUserAndLogin(server, prisma);
+
+      const res = await request(server)
+        .get('/usuarios/me')
+        .set('Authorization', `Bearer ${user.token}`)
+        .expect(200);
+
+      expect(res.body).toMatchObject({
+        nome: 'Usuário de Teste',
+        login: 'teste',
+      });
+
+      const body = res.body as Usuario & { senha?: string };
+      expect(body.id).toEqual(user.id);
+      expect(body.login).toEqual(user.login);
+      expect(body.senha).toBeUndefined();
+    });
+
+    it('should return 401 without a token', () => {
+      return request(server).get('/usuarios/me').expect(401);
     });
   });
 });

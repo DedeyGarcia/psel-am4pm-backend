@@ -30,6 +30,13 @@ export class UsuariosService {
     });
   }
 
+  findOne(userId: number) {
+    return this.prisma.usuarios.findUnique({
+      where: { id: userId },
+      select: this.publicSelect,
+    });
+  }
+
   findByLogin(login: string) {
     return this.prisma.usuarios.findUnique({ where: { login } });
   }

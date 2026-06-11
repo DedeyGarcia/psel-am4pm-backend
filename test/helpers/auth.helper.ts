@@ -12,13 +12,13 @@ export interface TestUser {
 }
 
 const DEFAULT_LOGIN = 'teste';
-const DEFAULT_SENHA = 'senha123';
+const DEFAULT_PASSWORD = 'senha123';
 
 export async function createUserAndLogin(
   server: App,
   prisma: PrismaService,
   login = DEFAULT_LOGIN,
-  senha = DEFAULT_SENHA,
+  senha = DEFAULT_PASSWORD,
 ): Promise<TestUser> {
   const now = new Date();
   const user = await prisma.usuarios.create({

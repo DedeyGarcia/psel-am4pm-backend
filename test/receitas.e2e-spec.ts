@@ -34,18 +34,18 @@ describe('ReceitasController (e2e)', () => {
     await app.close();
   });
 
-  const novaReceita = () => ({
+  const newRecipe = () => ({
     id_categorias: categoriaId,
     nome: 'Bolo de cenoura',
     modo_preparo: 'Misture e asse por 40 minutos.',
     ingredientes: '2 cenouras, 3 ovos',
   });
 
-  const criarReceita = async (user: TestUser): Promise<Receita> => {
+  const createRecipe = async (user: TestUser): Promise<Receita> => {
     const res = await request(server)
       .post('/receitas')
       .set('Authorization', `Bearer ${user.token}`)
-      .send(novaReceita())
+      .send(newRecipe())
       .expect(201);
     return res.body as Receita;
   };
@@ -55,7 +55,7 @@ describe('ReceitasController (e2e)', () => {
       const res = await request(server)
         .post('/receitas')
         .set('Authorization', `Bearer ${userA.token}`)
-        .send(novaReceita())
+        .send(newRecipe())
         .expect(201);
 
       const body = res.body as Receita;
@@ -73,14 +73,14 @@ describe('ReceitasController (e2e)', () => {
     });
 
     it('should return 401 without a token', () => {
-      return request(server).post('/receitas').send(novaReceita()).expect(401);
+      return request(server).post('/receitas').send(newRecipe()).expect(401);
     });
   });
 
   describe('GET /receitas', () => {
     it('should return only the recipes owned by the user', async () => {
-      await criarReceita(userA);
-      await criarReceita(userB);
+      await createRecipe(userA);
+      await createRecipe(userB);
 
       const res = await request(server)
         .get('/receitas')
@@ -95,7 +95,7 @@ describe('ReceitasController (e2e)', () => {
 
   describe('GET /receitas/:id', () => {
     it('should return the recipe for its owner', async () => {
-      const receita = await criarReceita(userA);
+      const receita = await createRecipe(userA);
 
       const res = await request(server)
         .get(`/receitas/${receita.id}`)
@@ -106,7 +106,7 @@ describe('ReceitasController (e2e)', () => {
     });
 
     it('should return 404 when another user tries to read the recipe', async () => {
-      const receita = await criarReceita(userA);
+      const receita = await createRecipe(userA);
 
       return request(server)
         .get(`/receitas/${receita.id}`)
@@ -117,7 +117,7 @@ describe('ReceitasController (e2e)', () => {
 
   describe('PATCH /receitas/:id', () => {
     it('should update the recipe for its owner', async () => {
-      const receita = await criarReceita(userA);
+      const receita = await createRecipe(userA);
 
       const res = await request(server)
         .patch(`/receitas/${receita.id}`)
@@ -129,7 +129,7 @@ describe('ReceitasController (e2e)', () => {
     });
 
     it('should return 404 when another user tries to update the recipe', async () => {
-      const receita = await criarReceita(userA);
+      const receita = await createRecipe(userA);
 
       return request(server)
         .patch(`/receitas/${receita.id}`)
@@ -141,7 +141,7 @@ describe('ReceitasController (e2e)', () => {
 
   describe('DELETE /receitas/:id', () => {
     it('should delete the recipe for its owner', async () => {
-      const receita = await criarReceita(userA);
+      const receita = await createRecipe(userA);
 
       await request(server)
         .delete(`/receitas/${receita.id}`)
@@ -155,7 +155,7 @@ describe('ReceitasController (e2e)', () => {
     });
 
     it('should return 404 when another user tries to delete the recipe', async () => {
-      const receita = await criarReceita(userA);
+      const receita = await createRecipe(userA);
 
       return request(server)
         .delete(`/receitas/${receita.id}`)

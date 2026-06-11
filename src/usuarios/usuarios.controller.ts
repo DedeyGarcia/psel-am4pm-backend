@@ -1,9 +1,10 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get, NotFoundException } from '@nestjs/common';
 import { ApiCreatedResponse } from '@nestjs/swagger';
 import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { Usuario } from './entities/usuario.entity';
 import { Public } from '../auth/public.decorator';
+import { type AuthUser, CurrentUser } from '../auth/current-user.decorator';
 
 @Controller('usuarios')
 export class UsuariosController {
@@ -14,6 +15,16 @@ export class UsuariosController {
   @ApiCreatedResponse({ type: Usuario })
   async create(@Body() createUsuarioDto: CreateUsuarioDto): Promise<Usuario> {
     const user = await this.usuariosService.create(createUsuarioDto);
+    return user;
+  }
+
+  @Get('me')
+  @ApiCreatedResponse({ type: Usuario })
+  async findOne(@CurrentUser() currentUser: AuthUser): Promise<Usuario> {
+    const user = await this.usuariosService.findOne(currentUser.userId);
+
+    if (!user) throw new NotFoundException('Usuário não encontrado');
+
     return user;
   }
 }
